@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"net/url"
 	"telegram/bot/mp3/botconfig"
 
@@ -25,11 +26,22 @@ func main() {
 
 	for update := range updates {
 		if update.Message != nil {
-			link, err := url.ParseRequestURI(update.Message.Text)
+			_, err := url.ParseRequestURI(update.Message.Text)
 			if err != nil {
 				log.Fatal(err)
 			}
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, link.Host)
+			response, err := http.Head(update.Message.Text)
+			if err != nil {
+				errorMsg := tgbotapi.NewMessage(update.Message.Chat.ID, "Your link is not valid!\n Try more...")
+				bot.Send(errorMsg)
+				log.Fatal(err)
+			}
+			if response.Status != ("200 OK") {
+				errorMsg := tgbotapi.NewMessage(update.Message.Chat.ID, "I can't find video by this link\nTry more...")
+				bot.Send(errorMsg)
+				log.Fatal(response.Status)
+			}
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, response.Status)
 			bot.Send(msg)
 		}
 	}
