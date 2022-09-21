@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"telegram/bot/mp3/botconfig"
+	"telegram/youtube/bot/botconfig"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -30,9 +30,9 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			response, err := http.Head(update.Message.Text)
+			response, err := http.Get(update.Message.Text)
 			if err != nil {
-				errorMsg := tgbotapi.NewMessage(update.Message.Chat.ID, "Your link is not valid!\n Try more...")
+				errorMsg := tgbotapi.NewMessage(update.Message.Chat.ID, "Your link is not valid!\nTry more...")
 				bot.Send(errorMsg)
 				log.Fatal(err)
 			}
