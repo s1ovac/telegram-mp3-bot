@@ -1,4 +1,4 @@
-module telegram/bot/mp3
+module telegram/youtube/bot
 
 go 1.19
 
