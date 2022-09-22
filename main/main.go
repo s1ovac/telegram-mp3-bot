@@ -2,9 +2,8 @@ package main
 
 import (
 	"log"
-	"net/http"
-	"net/url"
 	"telegram/youtube/bot/botconfig"
+	"telegram/youtube/bot/validation"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -26,23 +25,14 @@ func main() {
 
 	for update := range updates {
 		if update.Message != nil {
-			_, err := url.ParseRequestURI(update.Message.Text)
+			err := validation.Validation(update.Message.Text)
 			if err != nil {
-				log.Fatal(err)
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Link is invalid!\nTry more...")
+				bot.Send(msg)
+			} else {
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+				bot.Send(msg)
 			}
-			response, err := http.Get(update.Message.Text)
-			if err != nil {
-				errorMsg := tgbotapi.NewMessage(update.Message.Chat.ID, "Your link is not valid!\nTry more...")
-				bot.Send(errorMsg)
-				log.Fatal(err)
-			}
-			if response.Status != ("200 OK") {
-				errorMsg := tgbotapi.NewMessage(update.Message.Chat.ID, "I can't find video by this link\nTry more...")
-				bot.Send(errorMsg)
-				log.Fatal(response.Status)
-			}
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, response.Status)
-			bot.Send(msg)
 		}
 	}
 }
