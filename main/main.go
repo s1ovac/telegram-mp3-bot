@@ -1,12 +1,42 @@
 package main
 
 import (
+	"io"
 	"log"
+	"os"
 	"telegram/youtube/bot/botconfig"
 	"telegram/youtube/bot/validation"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	youtube "github.com/kkdai/youtube/v2"
 )
+
+func ExampleClient(link string) {
+	videoID := link
+	client := youtube.Client{}
+
+	video, err := client.GetVideo(videoID)
+	if err != nil {
+		panic(err)
+	}
+
+	formats := video.Formats.WithAudioChannels() // only get videos with audio
+	stream, _, err := client.GetStream(video, &formats[0])
+	if err != nil {
+		panic(err)
+	}
+
+	file, err := os.Create("video.mp4")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	_, err = io.Copy(file, stream)
+	if err != nil {
+		panic(err)
+	}
+}
 
 func main() {
 	bot, err := tgbotapi.NewBotAPI(botconfig.Token)
@@ -30,7 +60,13 @@ func main() {
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Link is invalid!\nTry more...")
 				bot.Send(msg)
 			} else {
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+				link := update.Message.Text
+				err = validation.Url(&link)
+				if err != nil {
+					log.Fatal(err)
+				}
+				ExampleClient(link)
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, link)
 				bot.Send(msg)
 			}
 		}
