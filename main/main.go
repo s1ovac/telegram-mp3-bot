@@ -26,7 +26,7 @@ func ExampleClient(link string) {
 		panic(err)
 	}
 
-	file, err := os.Create("video.mp4")
+	file, err := os.Create("/home/slovac/src/telegram-mp3-bot/videos/videos.mp3")
 	if err != nil {
 		panic(err)
 	}
@@ -66,7 +66,11 @@ func main() {
 					log.Fatal(err)
 				}
 				ExampleClient(link)
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, link)
+				file := tgbotapi.FilePath("/home/slovac/src/telegram-mp3-bot/videos/videos.mp3")
+				if err != nil {
+					log.Fatal(err)
+				}
+				msg := tgbotapi.NewAudio(update.Message.Chat.ID, file)
 				bot.Send(msg)
 			}
 		}
