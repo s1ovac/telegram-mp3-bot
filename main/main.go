@@ -11,22 +11,21 @@ import (
 	youtube "github.com/kkdai/youtube/v2"
 )
 
-func ExampleClient(link string) {
-	videoID := link
+func ExampleClient(link string) (string, string) {
 	client := youtube.Client{}
 
-	video, err := client.GetVideo(videoID)
+	video, err := client.GetVideo(link)
 	if err != nil {
 		panic(err)
 	}
 
 	formats := video.Formats.WithAudioChannels() // only get videos with audio
-	stream, _, err := client.GetStream(video, &formats[0])
+	stream, _, err := client.GetStream(video, &formats[3])
 	if err != nil {
 		panic(err)
 	}
-
-	file, err := os.Create("/home/slovac/src/telegram-mp3-bot/videos/videos.mp3")
+	filepath := "/home/slovac/src/telegram-mp3-bot/audios/" + link + ".mp4"
+	file, err := os.Create(filepath)
 	if err != nil {
 		panic(err)
 	}
@@ -36,6 +35,7 @@ func ExampleClient(link string) {
 	if err != nil {
 		panic(err)
 	}
+	return filepath, video.Title
 }
 
 func main() {
@@ -65,12 +65,13 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
-				ExampleClient(link)
-				file := tgbotapi.FilePath("/home/slovac/src/telegram-mp3-bot/videos/videos.mp3")
+				filePath, title := ExampleClient(link)
+				file := tgbotapi.FilePath(filePath)
 				if err != nil {
 					log.Fatal(err)
 				}
 				msg := tgbotapi.NewAudio(update.Message.Chat.ID, file)
+				msg.Title = title
 				bot.Send(msg)
 			}
 		}
