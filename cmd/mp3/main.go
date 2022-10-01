@@ -1,45 +1,16 @@
 package main
 
 import (
-	"io"
 	"log"
-	"os"
-	"telegram/youtube/bot/botconfig"
-	"telegram/youtube/bot/validation"
+	"telegram/youtube/bot/internal/config"
+	"telegram/youtube/bot/internal/config/validation"
+	"telegram/youtube/bot/internal/config/youtubeapi"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	youtube "github.com/kkdai/youtube/v2"
 )
 
-func ExampleClient(link string) (string, string) {
-	client := youtube.Client{}
-
-	video, err := client.GetVideo(link)
-	if err != nil {
-		panic(err)
-	}
-
-	formats := video.Formats.WithAudioChannels() // only get videos with audio
-	stream, _, err := client.GetStream(video, &formats[3])
-	if err != nil {
-		panic(err)
-	}
-	filepath := "/home/slovac/src/telegram-mp3-bot/audios/" + link + ".mp4"
-	file, err := os.Create(filepath)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	_, err = io.Copy(file, stream)
-	if err != nil {
-		panic(err)
-	}
-	return filepath, video.Title
-}
-
 func main() {
-	bot, err := tgbotapi.NewBotAPI(botconfig.Token)
+	bot, err := tgbotapi.NewBotAPI(config.Token)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -65,7 +36,7 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
-				filePath, title := ExampleClient(link)
+				filePath, title := youtubeapi.SaveAudio(link)
 				file := tgbotapi.FilePath(filePath)
 				if err != nil {
 					log.Fatal(err)
