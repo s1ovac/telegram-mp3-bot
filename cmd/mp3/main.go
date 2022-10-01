@@ -10,12 +10,13 @@ import (
 )
 
 func main() {
+
 	bot, err := tgbotapi.NewBotAPI(config.Token)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	bot.Debug = false
+	bot.Debug = true
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
@@ -26,25 +27,50 @@ func main() {
 
 	for update := range updates {
 		if update.Message != nil {
-			err := validation.Validation(update.Message.Text)
-			if err != nil {
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Link is invalid!\nTry more...")
-				bot.Send(msg)
-			} else {
-				link := update.Message.Text
-				err = validation.Url(&link)
-				if err != nil {
-					log.Fatal(err)
+			if update.Message.IsCommand() {
+				switch update.Message.Command() {
+				case "start":
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Приветствую, "+update.Message.Chat.LastName+"\nОтправьте ссылку на видео...\n")
+					bot.Send(msg)
+				case "help":
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Для работы необходимо отправить ссылку на видео в формате «youtube.com/... или «youtu.be/...»\n")
+					bot.Send(msg)
+				case "commands":
+					for command, description := range config.Commands {
+						msg := tgbotapi.NewMessage(update.Message.Chat.ID, command+" - "+description)
+						bot.Send(msg)
+					}
+				case "info":
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Создатель: s1ovac\nGit: https://github.com/s1ovac\nВК: https://vk.com/slovacccc\n\nВсе права защищены.\nCopyright © 2022 «s1ovac»\n")
+					bot.Send(msg)
+				default:
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Неверная команда!\nСписок команд: /help")
+					bot.Send(msg)
 				}
-				filePath, title := youtubeapi.SaveAudio(link)
-				file := tgbotapi.FilePath(filePath)
+
+			}
+			if !update.Message.IsCommand() {
+				err := validation.Validation(update.Message.Text)
 				if err != nil {
-					log.Fatal(err)
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Неправильная ссылка!\nПопробуйте еще...")
+					bot.Send(msg)
+				} else {
+					link := update.Message.Text
+					err = validation.Url(&link)
+					if err != nil {
+						log.Fatal(err)
+					}
+					filePath, title := youtubeapi.SaveAudio(link)
+					file := tgbotapi.FilePath(filePath)
+					if err != nil {
+						log.Fatal(err)
+					}
+					msg := tgbotapi.NewAudio(update.Message.Chat.ID, file)
+					msg.Title = title
+					bot.Send(msg)
 				}
-				msg := tgbotapi.NewAudio(update.Message.Chat.ID, file)
-				msg.Title = title
-				bot.Send(msg)
 			}
 		}
+
 	}
 }
