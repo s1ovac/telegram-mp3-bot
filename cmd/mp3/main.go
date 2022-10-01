@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 	"telegram/youtube/bot/internal/config"
-	"telegram/youtube/bot/internal/config/validation"
-	"telegram/youtube/bot/internal/config/youtubeapi"
+	"telegram/youtube/bot/internal/validation"
+	"telegram/youtube/bot/internal/youtubeapi"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
