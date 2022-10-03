@@ -20,7 +20,7 @@ func SaveAudio(link string) (string, string) {
 	if err != nil {
 		panic(err)
 	}
-	filepath := "/home/slovac/src/telegram-mp3-bot/audios/" + link + ".mp4"
+	filepath := "/home/telegram-mp3-bot/audios/" + link + ".mp4"
 	file, err := os.Create(filepath)
 	if err != nil {
 		panic(err)
