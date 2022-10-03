@@ -45,7 +45,7 @@ func main() {
 					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Создатель: s1ovac\nGit: https://github.com/s1ovac\nВК: https://vk.com/slovacccc\n\nВсе права защищены.\nCopyright © 2022 «s1ovac»\n")
 					bot.Send(msg)
 				default:
-					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Неверная команда!\nСписок команд: /help")
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Неверная команда!\nПомощь: /help")
 					bot.Send(msg)
 				}
 
