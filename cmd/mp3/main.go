@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"telegram/youtube/bot/internal/config"
 	"telegram/youtube/bot/internal/validation"
 	"telegram/youtube/bot/internal/youtubeapi"
@@ -68,6 +69,10 @@ func main() {
 					msg := tgbotapi.NewAudio(update.Message.Chat.ID, file)
 					msg.Title = title
 					bot.Send(msg)
+					err = os.Remove(filePath)
+					if err != nil {
+						log.Fatal(err)
+					}
 				}
 			}
 		}
