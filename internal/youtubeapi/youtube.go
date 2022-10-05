@@ -16,11 +16,11 @@ func SaveAudio(link string) (string, string) {
 	}
 
 	formats := video.Formats.WithAudioChannels() // only get videos with audio
-	stream, _, err := client.GetStream(video, &formats[3])
+	stream, _, err := client.GetStream(video, &formats[5])
 	if err != nil {
 		panic(err)
 	}
-	filepath := "/home/telegram-mp3-bot/audios/" + link + ".mp4"
+	filepath := "/home/slovac/telegram-mp3-bot/audios/" + link + ".mp4"
 	file, err := os.Create(filepath)
 	if err != nil {
 		panic(err)
